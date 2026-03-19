@@ -140,9 +140,9 @@ export default function Reports() {
       {tab === 0 && (
         <>
           <div className="stats-grid">
-            <StatCard title="Total Revenue" value={`$${totalRevenue.toFixed(2)}`} icon={DollarSign} color="#065f46" />
+            <StatCard title="Total Revenue" value={`₱${totalRevenue.toFixed(2)}`} icon={DollarSign} color="#065f46" />
             <StatCard title="Total Orders" value={filteredSales.length} icon={ShoppingCart} color="#D4AF37" />
-            <StatCard title="Avg Order Value" value={`$${avgOrder.toFixed(2)}`} icon={TrendingUp} color="#059669" />
+            <StatCard title="Avg Order Value" value={`₱${avgOrder.toFixed(2)}`} icon={TrendingUp} color="#059669" />
             <StatCard title="Top Product" value={topProduct} icon={Package} color="#10b981" subtitle="by revenue" />
           </div>
           <div className="charts-grid">
@@ -151,9 +151,9 @@ export default function Reports() {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={productChart} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                  <XAxis type="number" tickFormatter={v => `$${v}`} tick={{ fontSize: 11 }} />
+                  <XAxis type="number" tickFormatter={v => `₱${v}`} tick={{ fontSize: 11 }} />
                   <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={v => `$${Number(v).toFixed(2)}`} />
+                  <Tooltip formatter={v => `₱${Number(v).toFixed(2)}`} />
                   <Bar dataKey="revenue" fill="#065f46" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -184,7 +184,7 @@ export default function Reports() {
         <>
           <div className="stats-grid">
             <StatCard title="Total Products" value={products.length} icon={Package} color="#065f46" />
-            <StatCard title="Stock Value" value={`$${totalStockValue.toFixed(2)}`} icon={DollarSign} color="#D4AF37" />
+            <StatCard title="Stock Value" value={`₱${totalStockValue.toFixed(2)}`} icon={DollarSign} color="#D4AF37" />
             <StatCard title="Low Stock Items" value={lowStockItems.length} icon={Package} color="#ef4444" />
           </div>
           <div className="charts-grid">
@@ -196,7 +196,7 @@ export default function Reports() {
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
                     {Object.values(categoryStock).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={v => `$${Number(v).toFixed(2)}`} />
+                  <Tooltip formatter={v => `₱${Number(v).toFixed(2)}`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -235,9 +235,9 @@ export default function Reports() {
       {tab === 2 && (
         <>
           <div className="stats-grid">
-            <StatCard title="Total Income" value={`$${income.toFixed(2)}`} icon={TrendingUp} color="#10b981" />
-            <StatCard title="Total Expenses" value={`$${expenses.toFixed(2)}`} icon={DollarSign} color="#ef4444" />
-            <StatCard title="Net Profit" value={`$${netProfit.toFixed(2)}`} icon={DollarSign} color={netProfit >= 0 ? '#065f46' : '#ef4444'} />
+            <StatCard title="Total Income" value={`₱${income.toFixed(2)}`} icon={TrendingUp} color="#10b981" />
+            <StatCard title="Total Expenses" value={`₱${expenses.toFixed(2)}`} icon={DollarSign} color="#ef4444" />
+            <StatCard title="Net Profit" value={`₱${netProfit.toFixed(2)}`} icon={DollarSign} color={netProfit >= 0 ? '#065f46' : '#ef4444'} />
             <StatCard title="Profit Margin" value={`${margin}%`} icon={TrendingUp} color="#D4AF37" />
           </div>
           <div className="charts-grid">
@@ -247,8 +247,8 @@ export default function Reports() {
                 <BarChart data={Object.values(monthlyFinancial)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tickFormatter={v => `$${v}`} tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={v => `$${Number(v).toFixed(2)}`} />
+                  <YAxis tickFormatter={v => `₱${v}`} tick={{ fontSize: 12 }} />
+                  <Tooltip formatter={v => `₱${Number(v).toFixed(2)}`} />
                   <Legend />
                   <Bar dataKey="income" fill="#065f46" name="Income" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[4, 4, 0, 0]} />
@@ -273,7 +273,7 @@ export default function Reports() {
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
                     {Object.values(expenseByCategory).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={v => `$${Number(v).toFixed(2)}`} />
+                  <Tooltip formatter={v => `₱${Number(v).toFixed(2)}`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

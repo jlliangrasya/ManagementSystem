@@ -136,7 +136,7 @@ export default function SalesFlow() {
   }
 
   function formatMoney(value) {
-    return `$${(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    return `₱${(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   const statusColumns = [
@@ -206,7 +206,7 @@ export default function SalesFlow() {
                   tick={{ fontSize: 12 }}
                   interval="preserveStartEnd"
                 />
-                <YAxis tickFormatter={(val) => `$${val.toLocaleString()}`} />
+                <YAxis tickFormatter={(val) => `₱${val.toLocaleString()}`} />
                 <Tooltip
                   formatter={(value) => [formatMoney(value), 'Revenue']}
                 />
@@ -240,7 +240,7 @@ export default function SalesFlow() {
                   textAnchor="end"
                   height={80}
                 />
-                <YAxis tickFormatter={(val) => `$${val.toLocaleString()}`} />
+                <YAxis tickFormatter={(val) => `₱${val.toLocaleString()}`} />
                 <Tooltip
                   formatter={(value) => [formatMoney(value), 'Revenue']}
                 />

@@ -80,7 +80,7 @@ export default function Invoices() {
     { header: 'Invoice #', accessor: 'invoice_number' },
     { header: 'Date', accessor: 'invoice_date', render: r => r.invoice_date ? new Date(r.invoice_date).toLocaleDateString() : '' },
     { header: 'Client', accessor: 'client', render: r => r.clients?.name || '—' },
-    { header: 'Amount', accessor: 'amount', render: r => `$${(r.amount || 0).toFixed(2)}` },
+    { header: 'Amount', accessor: 'amount', render: r => `₱${(r.amount || 0).toFixed(2)}` },
     { header: 'Due Date', accessor: 'due_date', render: r => r.due_date ? new Date(r.due_date).toLocaleDateString() : '—' },
     { header: 'Status', accessor: 'status', render: r => <span className={`badge badge-${statusColors[r.status] || 'gray'}`}>{r.status}</span> },
   ]
@@ -98,7 +98,7 @@ export default function Invoices() {
       <div className="stats-grid">
         <StatCard title="Total Invoices" value={invoices.length} icon={FileText} color="#065f46" />
         <StatCard title="Paid" value={paid.length} icon={CheckCircle} color="#10b981" />
-        <StatCard title="Outstanding" value={`$${unpaidAmt.toFixed(2)}`} icon={DollarSign} color="#D4AF37" />
+        <StatCard title="Outstanding" value={`₱${unpaidAmt.toFixed(2)}`} icon={DollarSign} color="#D4AF37" />
         <StatCard title="Overdue" value={overdueCount} icon={AlertTriangle} color="#ef4444" />
       </div>
 
@@ -113,7 +113,7 @@ export default function Invoices() {
               <option value="">Choose a completed sale...</option>
               {availableSales.map(s => (
                 <option key={s.id} value={s.id}>
-                  {new Date(s.sale_date).toLocaleDateString()} — {s.clients?.name || 'Walk-in'} — ${(s.total_net || 0).toFixed(2)}
+                  {new Date(s.sale_date).toLocaleDateString()} — {s.clients?.name || 'Walk-in'} — ₱{(s.total_net || 0).toFixed(2)}
                 </option>
               ))}
             </select>

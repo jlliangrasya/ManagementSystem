@@ -124,9 +124,9 @@ export default function Clients() {
   const historyColumns = [
     { header: 'Date', accessor: 'sale_date', render: row => row.sale_date ? new Date(row.sale_date).toLocaleDateString() : '' },
     { header: 'Items', accessor: 'items', render: row => row.sale_items?.length || 0 },
-    { header: 'Subtotal', accessor: 'subtotal', render: row => `$${(row.subtotal || 0).toFixed(2)}` },
-    { header: 'Discount', accessor: 'discount', render: row => `$${(row.discount || 0).toFixed(2)}` },
-    { header: 'Net', accessor: 'total_net', render: row => `$${(row.total_net || 0).toFixed(2)}` },
+    { header: 'Subtotal', accessor: 'subtotal', render: row => `₱${(row.subtotal || 0).toFixed(2)}` },
+    { header: 'Discount', accessor: 'discount', render: row => `₱${(row.discount || 0).toFixed(2)}` },
+    { header: 'Net', accessor: 'total_net', render: row => `₱${(row.total_net || 0).toFixed(2)}` },
     {
       header: 'Status', accessor: 'status',
       render: row => (

@@ -188,7 +188,7 @@ export default function Dashboard() {
   const recentSalesColumns = [
     { header: 'Date', accessor: 'sale_date', render: row => row.sale_date ? new Date(row.sale_date).toLocaleDateString() : '' },
     { header: 'Client', accessor: 'client_name', render: row => row.clients?.name || 'Walk-in' },
-    { header: 'Net', accessor: 'total_net', render: row => `$${(row.total_net || 0).toFixed(2)}` },
+    { header: 'Net', accessor: 'total_net', render: row => `₱${(row.total_net || 0).toFixed(2)}` },
     { header: 'Status', accessor: 'status', render: row => (
       <span className={`badge badge-${row.status === 'completed' ? 'green' : row.status === 'pending' ? 'yellow' : 'gray'}`}>
         {row.status}
@@ -226,9 +226,9 @@ export default function Dashboard() {
       <div className="stats-grid">
         <StatCard title="Total Products" value={stats.totalProducts.toLocaleString()} icon={Package} color="#065f46" />
         <StatCard title="Total Clients" value={stats.totalClients.toLocaleString()} icon={Users} color="#D4AF37" />
-        <StatCard title="Sales Revenue" value={`$${stats.totalRevenue.toFixed(2)}`} icon={ShoppingCart} color="#059669"
+        <StatCard title="Sales Revenue" value={`₱${stats.totalRevenue.toFixed(2)}`} icon={ShoppingCart} color="#059669"
           subtitle={`${stats.totalSales} orders in range`} />
-        <StatCard title="Net Profit" value={`$${stats.netProfit.toFixed(2)}`} icon={TrendingUp}
+        <StatCard title="Net Profit" value={`₱${stats.netProfit.toFixed(2)}`} icon={TrendingUp}
           color={stats.netProfit >= 0 ? '#10b981' : '#ef4444'} />
         <StatCard title="Low Stock Alerts" value={stats.lowStockCount.toLocaleString()} icon={AlertTriangle} color="#ef4444" />
       </div>
@@ -241,8 +241,8 @@ export default function Dashboard() {
               <BarChart data={monthlySales}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={v => `$${v.toLocaleString()}`} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={v => [`$${Number(v).toFixed(2)}`, 'Revenue']} />
+                <YAxis tickFormatter={v => `₱${v.toLocaleString()}`} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={v => [`₱${Number(v).toFixed(2)}`, 'Revenue']} />
                 <Bar dataKey="revenue" fill="#065f46" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -263,7 +263,7 @@ export default function Dashboard() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={v => [`$${Number(v).toFixed(2)}`, 'Revenue']} />
+                <Tooltip formatter={v => [`₱${Number(v).toFixed(2)}`, 'Revenue']} />
               </PieChart>
             </ResponsiveContainer>
           ) : (

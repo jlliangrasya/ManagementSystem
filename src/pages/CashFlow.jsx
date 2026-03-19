@@ -20,8 +20,8 @@ const emptyForm = {
 
 function formatCurrency(value) {
   const num = Number(value)
-  if (isNaN(num)) return '$0.00'
-  return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (isNaN(num)) return '₱0.00'
+  return '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export default function CashFlow() {
@@ -264,7 +264,7 @@ export default function CashFlow() {
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis tickFormatter={(val) => `$${val.toLocaleString()}`} />
+                <YAxis tickFormatter={(val) => `₱${val.toLocaleString()}`} />
                 <Tooltip
                   formatter={(value, name) => [
                     formatCurrency(value),

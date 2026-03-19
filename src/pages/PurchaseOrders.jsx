@@ -142,7 +142,7 @@ export default function PurchaseOrders() {
     { header: 'Date', accessor: 'po_date', render: r => r.po_date ? new Date(r.po_date).toLocaleDateString() : '' },
     { header: 'Distributor', accessor: 'dist', render: r => r.clients?.name || '—' },
     { header: 'Items', accessor: 'items', render: r => r.purchase_order_items?.length || 0 },
-    { header: 'Total Cost', accessor: 'total_cost', render: r => `$${(r.total_cost || 0).toFixed(2)}` },
+    { header: 'Total Cost', accessor: 'total_cost', render: r => `₱${(r.total_cost || 0).toFixed(2)}` },
     { header: 'Status', accessor: 'status', render: r => <span className={`badge badge-${statusColors[r.status] || 'gray'}`}>{r.status}</span> },
     { header: 'Expected', accessor: 'expected_delivery', render: r => r.expected_delivery ? new Date(r.expected_delivery).toLocaleDateString() : '—' },
   ]
@@ -160,7 +160,7 @@ export default function PurchaseOrders() {
       <div className="stats-grid">
         <StatCard title="Total POs" value={pos.length} icon={ClipboardList} color="#065f46" />
         <StatCard title="Pending Orders" value={pendingPOs.length} icon={Clock} color="#D4AF37" />
-        <StatCard title="Open Value" value={`$${openValue.toFixed(2)}`} icon={DollarSign} color="#059669" />
+        <StatCard title="Open Value" value={`₱${openValue.toFixed(2)}`} icon={DollarSign} color="#059669" />
         <StatCard title="Received This Month" value={thisMonth} icon={CheckCircle} color="#10b981" />
       </div>
 

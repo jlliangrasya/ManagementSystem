@@ -169,8 +169,8 @@ export default function Distributors() {
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tickFormatter={v => `$${v.toLocaleString()}`} tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={v => [`$${Number(v).toFixed(2)}`, 'Value']} />
+                  <YAxis tickFormatter={v => `₱${v.toLocaleString()}`} tick={{ fontSize: 12 }} />
+                  <Tooltip formatter={v => [`₱${Number(v).toFixed(2)}`, 'Value']} />
                   <Bar dataKey="value" fill="#065f46" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -199,7 +199,7 @@ export default function Distributors() {
               { header: 'PO #', accessor: 'po_number' },
               { header: 'Date', accessor: 'po_date', render: row => new Date(row.po_date).toLocaleDateString() },
               { header: 'Items', accessor: 'items', render: row => row.purchase_order_items?.length || 0 },
-              { header: 'Total', accessor: 'total_cost', render: row => `$${(row.total_cost || 0).toFixed(2)}` },
+              { header: 'Total', accessor: 'total_cost', render: row => `₱${(row.total_cost || 0).toFixed(2)}` },
               {
                 header: 'Status', accessor: 'status',
                 render: row => (

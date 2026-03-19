@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, Truck,
   ArrowLeftRight, TrendingUp, DollarSign, LogOut, Menu, X,
   ClipboardList, FileText, BarChart3, Bell, Layers, RotateCcw,
-  Activity, Shield
+  Activity, Shield, Star
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
@@ -48,6 +48,7 @@ const navSections = [
     items: [
       { to: '/reports', icon: BarChart3, label: 'Reports' },
       { to: '/activity-log', icon: Activity, label: 'Activity Log' },
+      { to: '/features', icon: Star, label: 'Features' },
     ]
   },
 ]

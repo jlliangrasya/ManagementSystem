@@ -161,7 +161,7 @@ export default function Returns() {
     { header: 'Date', accessor: 'return_date', render: r => r.return_date ? new Date(r.return_date).toLocaleDateString() : '' },
     { header: 'Client', accessor: 'client', render: r => r.clients?.name || '—' },
     { header: 'Items', accessor: 'items', render: r => r.return_items?.length || 0 },
-    { header: 'Refund', accessor: 'refund_amount', render: r => `$${(r.refund_amount || 0).toFixed(2)}` },
+    { header: 'Refund', accessor: 'refund_amount', render: r => `₱${(r.refund_amount || 0).toFixed(2)}` },
     { header: 'Reason', accessor: 'reason' },
     { header: 'Status', accessor: 'status', render: r => <span className={`badge badge-${statusColors[r.status] || 'gray'}`}>{r.status}</span> },
   ]
@@ -180,7 +180,7 @@ export default function Returns() {
         <StatCard title="Total Returns" value={returns.length} icon={RotateCcw} color="#065f46" />
         <StatCard title="Pending" value={pending} icon={Clock} color="#D4AF37" />
         <StatCard title="Completed" value={completed} icon={CheckCircle} color="#10b981" />
-        <StatCard title="Total Refunded" value={`$${totalRefund.toFixed(2)}`} icon={AlertTriangle} color="#ef4444" />
+        <StatCard title="Total Refunded" value={`₱${totalRefund.toFixed(2)}`} icon={AlertTriangle} color="#ef4444" />
       </div>
 
       <div className="filter-buttons">
@@ -198,7 +198,7 @@ export default function Returns() {
                 <option value="">Choose a sale...</option>
                 {sales.map(s => (
                   <option key={s.id} value={s.id}>
-                    {new Date(s.sale_date).toLocaleDateString()} — {s.clients?.name || 'Walk-in'} — ${(s.total_net || 0).toFixed(2)}
+                    {new Date(s.sale_date).toLocaleDateString()} — {s.clients?.name || 'Walk-in'} — ₱{(s.total_net || 0).toFixed(2)}
                   </option>
                 ))}
               </select>

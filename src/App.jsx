@@ -17,6 +17,7 @@ import Notifications from './pages/Notifications'
 import BatchTracking from './pages/BatchTracking'
 import Returns from './pages/Returns'
 import ActivityLog from './pages/ActivityLog'
+import Features from './pages/Features'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -57,6 +58,7 @@ function AppRoutes() {
       <Route path="/batch-tracking" element={<ProtectedRoute><BatchTracking /></ProtectedRoute>} />
       <Route path="/returns" element={<ProtectedRoute><Returns /></ProtectedRoute>} />
       <Route path="/activity-log" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
+      <Route path="/features" element={<ProtectedRoute><Features /></ProtectedRoute>} />
     </Routes>
   )
 }

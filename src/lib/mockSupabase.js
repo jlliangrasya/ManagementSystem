@@ -301,7 +301,7 @@ function resolveRelations(row, selectStr) {
 const authListeners = new Set()
 let currentUser = {
   id: 'mock-user-001',
-  email: 'demo@cavella.com',
+  email: 'jillian@cavella.ph',
   user_metadata: { name: 'Demo User' },
 }
 
