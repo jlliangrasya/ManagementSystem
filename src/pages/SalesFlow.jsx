@@ -50,7 +50,7 @@ export default function SalesFlow() {
   function processData(data) {
     // Summary stats
     const totalCount = data.length
-    const totalRevenue = data.reduce((sum, sale) => sum + (sale.total_amount || 0), 0)
+    const totalRevenue = data.reduce((sum, sale) => sum + (sale.total_net || 0), 0)
     const avgOrderValue = totalCount > 0 ? totalRevenue / totalCount : 0
 
     // Top product by revenue across all sale items
@@ -88,7 +88,7 @@ export default function SalesFlow() {
     data.forEach(sale => {
       const saleDate = sale.sale_date ? sale.sale_date.split('T')[0] : null
       if (saleDate && dailyMap[saleDate]) {
-        dailyMap[saleDate].revenue += sale.total_amount || 0
+        dailyMap[saleDate].revenue += sale.total_net || 0
       }
     })
 
@@ -112,7 +112,7 @@ export default function SalesFlow() {
         statusMap[status] = { status, count: 0, totalRevenue: 0 }
       }
       statusMap[status].count += 1
-      statusMap[status].totalRevenue += sale.total_amount || 0
+      statusMap[status].totalRevenue += sale.total_net || 0
     })
 
     setStatusData(Object.values(statusMap))
@@ -124,7 +124,7 @@ export default function SalesFlow() {
       if (!clientMap[clientName]) {
         clientMap[clientName] = { name: clientName, totalSpent: 0, orderCount: 0 }
       }
-      clientMap[clientName].totalSpent += sale.total_amount || 0
+      clientMap[clientName].totalSpent += sale.total_net || 0
       clientMap[clientName].orderCount += 1
     })
 

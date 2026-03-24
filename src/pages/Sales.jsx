@@ -54,7 +54,7 @@ export default function Sales() {
   }
 
   async function fetchProducts() {
-    const { data } = await supabase.from('products').select('id, name, unit_price, stock_quantity').order('name')
+    const { data } = await supabase.from('products').select('id, name, unit_price, cost_price, stock_quantity').order('name')
     if (data) setProducts(data)
   }
 
@@ -168,13 +168,18 @@ export default function Sales() {
 
       const saleItems = items
         .filter(item => item.product_id)
-        .map(item => ({
-          sale_id: saleId,
-          product_id: item.product_id,
-          quantity: Number(item.quantity),
-          unit_price: Number(item.unit_price),
-          line_total: Number(item.quantity) * Number(item.unit_price),
-        }))
+        .map(item => {
+          const product = products.find(p => p.id === item.product_id)
+          return {
+            sale_id: saleId,
+            product_id: item.product_id,
+            product_name: product?.name || '',
+            quantity: Number(item.quantity),
+            unit_price: Number(item.unit_price),
+            cost_price: product?.cost_price || 0,
+            total: Number(item.quantity) * Number(item.unit_price),
+          }
+        })
 
       if (saleItems.length > 0) {
         const { error } = await supabase.from('sale_items').insert(saleItems)
@@ -188,8 +193,8 @@ export default function Sales() {
             product_id: item.product_id,
             type: 'out',
             quantity: item.quantity,
-            reference_type: 'sale',
-            reference_id: saleId,
+            reference: `Sale #${saleId}`,
+            notes: `Stock out from sale`,
           })
 
           const product = products.find(p => p.id === item.product_id)
@@ -206,7 +211,6 @@ export default function Sales() {
           type: 'income',
           category: 'sale',
           amount: totalNet,
-          reference_type: 'sale',
           reference_id: saleId,
           description: `Sale #${saleId}`,
           transaction_date: form.sale_date,
