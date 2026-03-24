@@ -54,7 +54,7 @@ export default function Sales() {
   }
 
   async function fetchProducts() {
-    const { data } = await supabase.from('products').select('id, name, price, stock_quantity').order('name')
+    const { data } = await supabase.from('products').select('id, name, unit_price, stock_quantity').order('name')
     if (data) setProducts(data)
   }
 
@@ -107,7 +107,7 @@ export default function Sales() {
       if (field === 'product_id') {
         const product = products.find(p => p.id === value)
         if (product) {
-          updated[index].unit_price = product.price || 0
+          updated[index].unit_price = product.unit_price || 0
         }
       }
 
