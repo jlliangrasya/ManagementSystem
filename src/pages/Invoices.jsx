@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import StatCard from '../components/StatCard'
@@ -8,6 +9,7 @@ import { Plus, FileText, DollarSign, AlertTriangle, CheckCircle, Printer, X } fr
 const statusColors = { draft: 'gray', sent: 'blue', paid: 'green', overdue: 'red' }
 
 export default function Invoices() {
+  const { canDo } = useAuth()
   const [invoices, setInvoices] = useState([])
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
@@ -92,7 +94,7 @@ export default function Invoices() {
           <h1>Invoices</h1>
           <p className="page-subtitle">{invoices.length} total invoices</p>
         </div>
-        <button className="btn btn-primary" onClick={openGenerate}><Plus size={18} /> Generate Invoice</button>
+        {canDo('invoices', 'add') && <button className="btn btn-primary" onClick={openGenerate}><Plus size={18} /> Generate Invoice</button>}
       </div>
 
       <div className="stats-grid">
@@ -229,7 +231,7 @@ export default function Invoices() {
           </div>
 
           <div className="modal-actions no-print">
-            {viewInvoice.status !== 'paid' && (
+            {viewInvoice.status !== 'paid' && canDo('invoices', 'edit') && (
               <button className="btn btn-primary" onClick={() => markAsPaid(viewInvoice)}><CheckCircle size={16} /> Mark as Paid</button>
             )}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>

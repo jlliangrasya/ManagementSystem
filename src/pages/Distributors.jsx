@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import DistributorMap from '../components/DistributorMap'
@@ -9,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const emptyForm = { name: '', email: '', phone: '', address: '', notes: '', latitude: '', longitude: '' }
 
 export default function Distributors() {
+  const { canDo } = useAuth()
   const [distributors, setDistributors] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -234,7 +236,7 @@ export default function Distributors() {
               <List size={16} /> List
             </button>
           </div>
-          <button className="btn btn-primary" onClick={openAdd}><Plus size={18} /> Add Distributor</button>
+          {canDo('distributors', 'add') && <button className="btn btn-primary" onClick={openAdd}><Plus size={18} /> Add Distributor</button>}
         </div>
       </div>
 
@@ -247,7 +249,7 @@ export default function Distributors() {
       ) : null}
 
       {!loading && (
-        <DataTable columns={columns} data={distributors} onRowClick={openEdit} />
+        <DataTable columns={columns} data={distributors} onRowClick={(canDo('distributors', 'edit') || canDo('distributors', 'delete')) ? openEdit : undefined} />
       )}
 
       {modalOpen && (
@@ -295,12 +297,12 @@ export default function Distributors() {
               <textarea name="notes" value={form.notes} onChange={handleChange} placeholder="Additional notes" rows={3} />
             </div>
             <div className="modal-actions">
-              {editing && (
+              {editing && canDo('distributors', 'delete') && (
                 <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={saving}><Trash2 size={16} /> Delete</button>
               )}
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                 <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
+                <button type="submit" className="btn btn-primary" disabled={saving || (editing && !canDo('distributors', 'edit'))}>{saving ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
               </div>
             </div>
           </form>

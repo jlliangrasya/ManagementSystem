@@ -1,6 +1,123 @@
 -- ============================================
 -- Management System Database Schema
+-- With User Permissions System
 -- Run this in Supabase SQL Editor
+-- ============================================
+
+-- ============================================
+-- STEP 1: Drop everything (run this first if tables exist)
+-- ============================================
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS handle_new_user();
+
+DROP POLICY IF EXISTS "Authenticated users can manage return_items" ON return_items;
+DROP POLICY IF EXISTS "Authenticated users can manage returns" ON returns;
+DROP POLICY IF EXISTS "Authenticated users can manage purchase_order_items" ON purchase_order_items;
+DROP POLICY IF EXISTS "Authenticated users can manage purchase_orders" ON purchase_orders;
+DROP POLICY IF EXISTS "Authenticated users can manage invoices" ON invoices;
+DROP POLICY IF EXISTS "Authenticated users can manage batches" ON batches;
+DROP POLICY IF EXISTS "Authenticated users can manage sale_items" ON sale_items;
+DROP POLICY IF EXISTS "Authenticated users can manage sales" ON sales;
+DROP POLICY IF EXISTS "Authenticated users can manage stock_movements" ON stock_movements;
+DROP POLICY IF EXISTS "Authenticated users can manage transactions" ON transactions;
+DROP POLICY IF EXISTS "Authenticated users can manage activity_log" ON activity_log;
+DROP POLICY IF EXISTS "Authenticated users can manage notifications" ON notifications;
+DROP POLICY IF EXISTS "Authenticated users can manage clients" ON clients;
+DROP POLICY IF EXISTS "Authenticated users can manage products" ON products;
+
+DROP TABLE IF EXISTS return_items CASCADE;
+DROP TABLE IF EXISTS purchase_order_items CASCADE;
+DROP TABLE IF EXISTS sale_items CASCADE;
+DROP TABLE IF EXISTS returns CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS purchase_orders CASCADE;
+DROP TABLE IF EXISTS stock_movements CASCADE;
+DROP TABLE IF EXISTS batches CASCADE;
+DROP TABLE IF EXISTS sales CASCADE;
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS activity_log CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+
+-- ============================================
+-- STEP 2: User Profiles & Permissions
+-- ============================================
+
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
+  full_name TEXT,
+  is_admin BOOLEAN NOT NULL DEFAULT false,
+  -- Array of page/feature keys this user can access
+  -- Admin always has access to everything regardless of this field
+  permissions JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Auto-create profile when a new user signs up
+-- First user ever becomes admin with all permissions
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  user_count INTEGER;
+  all_permissions JSONB := '{
+    "dashboard": ["view"],
+    "notifications": ["view"],
+    "inventory": ["view", "add", "edit", "delete"],
+    "sales": ["view", "add", "edit", "delete"],
+    "purchase-orders": ["view", "add", "edit", "delete"],
+    "returns": ["view", "add", "edit", "delete"],
+    "invoices": ["view", "add", "edit"],
+    "clients": ["view", "add", "edit", "delete"],
+    "distributors": ["view", "add", "edit", "delete"],
+    "batch-tracking": ["view", "add", "edit", "delete"],
+    "stock-flow": ["view", "add"],
+    "sales-flow": ["view"],
+    "cash-flow": ["view", "add", "edit", "delete"],
+    "reports": ["view"],
+    "activity-log": ["view"],
+    "features": ["view"],
+    "user-management": ["view", "edit"]
+  }'::jsonb;
+BEGIN
+  SELECT COUNT(*) INTO user_count FROM profiles;
+
+  IF user_count = 0 THEN
+    -- First user = admin with all permissions
+    INSERT INTO profiles (id, email, full_name, is_admin, permissions)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+      true,
+      all_permissions
+    );
+  ELSE
+    -- Subsequent users = no permissions until admin grants them
+    INSERT INTO profiles (id, email, full_name, is_admin, permissions)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+      false,
+      '{"dashboard": ["view"]}'::jsonb
+    );
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- ============================================
+-- STEP 3: Business Tables
 -- ============================================
 
 -- Products / Inventory
@@ -185,9 +302,10 @@ CREATE TABLE notifications (
 );
 
 -- ============================================
--- Row Level Security (RLS)
+-- STEP 4: Row Level Security (RLS)
 -- ============================================
 
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
@@ -203,7 +321,66 @@ ALTER TABLE batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- Allow authenticated users full access
+-- === Profiles policies ===
+
+-- Everyone can read their own profile
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT TO authenticated
+  USING (id = auth.uid());
+
+-- Admins can read all profiles (for user management page)
+CREATE POLICY "Admins can read all profiles"
+  ON profiles FOR SELECT TO authenticated
+  USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+  );
+
+-- Users with user_management permission can also read all profiles
+CREATE POLICY "User managers can read all profiles"
+  ON profiles FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
+    )
+  );
+
+-- Only admins can update profiles (assign permissions)
+CREATE POLICY "Admins can update profiles"
+  ON profiles FOR UPDATE TO authenticated
+  USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+  );
+
+-- Users with user_management permission can update non-admin profiles
+CREATE POLICY "User managers can update non-admin profiles"
+  ON profiles FOR UPDATE TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
+    )
+    AND is_admin = false
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
+    )
+    AND is_admin = false
+  );
+
+-- Users can update their own name/email (but not permissions or is_admin)
+CREATE POLICY "Users can update own basic info"
+  ON profiles FOR UPDATE TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
+
+-- === Business table policies (shared data, all authenticated users) ===
+
 CREATE POLICY "Authenticated users can manage products" ON products FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Authenticated users can manage clients" ON clients FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Authenticated users can manage sales" ON sales FOR ALL TO authenticated USING (true) WITH CHECK (true);
@@ -220,9 +397,10 @@ CREATE POLICY "Authenticated users can manage activity_log" ON activity_log FOR 
 CREATE POLICY "Authenticated users can manage notifications" ON notifications FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ============================================
--- Indexes for performance
+-- STEP 5: Indexes
 -- ============================================
 
+CREATE INDEX idx_profiles_is_admin ON profiles(is_admin);
 CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_sku ON products(sku);
 CREATE INDEX idx_clients_type ON clients(type);

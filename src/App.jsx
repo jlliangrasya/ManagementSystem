@@ -18,9 +18,10 @@ import BatchTracking from './pages/BatchTracking'
 import Returns from './pages/Returns'
 import ActivityLog from './pages/ActivityLog'
 import Features from './pages/Features'
+import UserManagement from './pages/UserManagement'
 
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
+function ProtectedRoute({ children, permission }) {
+  const { user, loading, canAccess } = useAuth()
 
   if (loading) {
     return <div className="loading-screen">Loading...</div>
@@ -28,6 +29,10 @@ function ProtectedRoute({ children }) {
 
   if (!user) {
     return <Navigate to="/login" replace />
+  }
+
+  if (permission && !canAccess(permission)) {
+    return <Navigate to="/" replace />
   }
 
   return <Layout>{children}</Layout>
@@ -43,22 +48,23 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-      <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
-      <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-      <Route path="/distributors" element={<ProtectedRoute><Distributors /></ProtectedRoute>} />
-      <Route path="/stock-flow" element={<ProtectedRoute><StockFlow /></ProtectedRoute>} />
-      <Route path="/sales-flow" element={<ProtectedRoute><SalesFlow /></ProtectedRoute>} />
-      <Route path="/cash-flow" element={<ProtectedRoute><CashFlow /></ProtectedRoute>} />
-      <Route path="/purchase-orders" element={<ProtectedRoute><PurchaseOrders /></ProtectedRoute>} />
-      <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-      <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-      <Route path="/batch-tracking" element={<ProtectedRoute><BatchTracking /></ProtectedRoute>} />
-      <Route path="/returns" element={<ProtectedRoute><Returns /></ProtectedRoute>} />
-      <Route path="/activity-log" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
-      <Route path="/features" element={<ProtectedRoute><Features /></ProtectedRoute>} />
+      <Route path="/" element={<ProtectedRoute permission="dashboard"><Dashboard /></ProtectedRoute>} />
+      <Route path="/inventory" element={<ProtectedRoute permission="inventory"><Inventory /></ProtectedRoute>} />
+      <Route path="/sales" element={<ProtectedRoute permission="sales"><Sales /></ProtectedRoute>} />
+      <Route path="/clients" element={<ProtectedRoute permission="clients"><Clients /></ProtectedRoute>} />
+      <Route path="/distributors" element={<ProtectedRoute permission="distributors"><Distributors /></ProtectedRoute>} />
+      <Route path="/stock-flow" element={<ProtectedRoute permission="stock-flow"><StockFlow /></ProtectedRoute>} />
+      <Route path="/sales-flow" element={<ProtectedRoute permission="sales-flow"><SalesFlow /></ProtectedRoute>} />
+      <Route path="/cash-flow" element={<ProtectedRoute permission="cash-flow"><CashFlow /></ProtectedRoute>} />
+      <Route path="/purchase-orders" element={<ProtectedRoute permission="purchase-orders"><PurchaseOrders /></ProtectedRoute>} />
+      <Route path="/invoices" element={<ProtectedRoute permission="invoices"><Invoices /></ProtectedRoute>} />
+      <Route path="/reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
+      <Route path="/notifications" element={<ProtectedRoute permission="notifications"><Notifications /></ProtectedRoute>} />
+      <Route path="/batch-tracking" element={<ProtectedRoute permission="batch-tracking"><BatchTracking /></ProtectedRoute>} />
+      <Route path="/returns" element={<ProtectedRoute permission="returns"><Returns /></ProtectedRoute>} />
+      <Route path="/activity-log" element={<ProtectedRoute permission="activity-log"><ActivityLog /></ProtectedRoute>} />
+      <Route path="/features" element={<ProtectedRoute permission="features"><Features /></ProtectedRoute>} />
+      <Route path="/user-management" element={<ProtectedRoute permission="user-management"><UserManagement /></ProtectedRoute>} />
     </Routes>
   )
 }

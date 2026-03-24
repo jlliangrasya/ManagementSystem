@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import { Plus, ArrowDownCircle, ArrowUpCircle, RefreshCw } from 'lucide-react'
@@ -46,6 +47,7 @@ function buildChartData(movements) {
 }
 
 export default function StockFlow() {
+  const { canDo } = useAuth()
   const [movements, setMovements] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -207,10 +209,12 @@ export default function StockFlow() {
     <div className="page">
       <div className="page-header">
         <h1>Stock Flow</h1>
-        <button className="btn btn-primary" onClick={openModal}>
-          <Plus size={18} />
-          Record Movement
-        </button>
+        {canDo('stock-flow', 'add') && (
+          <button className="btn btn-primary" onClick={openModal}>
+            <Plus size={18} />
+            Record Movement
+          </button>
+        )}
       </div>
 
       <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>

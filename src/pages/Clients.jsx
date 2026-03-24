@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import { Plus, Trash2, ShoppingCart, ArrowLeft } from 'lucide-react'
@@ -7,6 +8,7 @@ import { Plus, Trash2, ShoppingCart, ArrowLeft } from 'lucide-react'
 const emptyForm = { name: '', email: '', phone: '', address: '', notes: '' }
 
 export default function Clients() {
+  const { canDo } = useAuth()
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -255,15 +257,17 @@ export default function Clients() {
           <h1>Clients</h1>
           <p className="page-subtitle">{clients.length} total client{clients.length !== 1 ? 's' : ''}</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Plus size={18} /> Add Client
-        </button>
+        {canDo('clients', 'add') && (
+          <button className="btn btn-primary" onClick={openAdd}>
+            <Plus size={18} /> Add Client
+          </button>
+        )}
       </div>
 
       {loading ? (
         <p className="loading">Loading...</p>
       ) : (
-        <DataTable columns={columns} data={clients} onRowClick={openEdit} />
+        <DataTable columns={columns} data={clients} onRowClick={(canDo('clients', 'edit') || canDo('clients', 'delete')) ? openEdit : undefined} />
       )}
 
       {modalOpen && (
@@ -291,14 +295,14 @@ export default function Clients() {
               <textarea name="notes" value={form.notes} onChange={handleChange} placeholder="Additional notes" rows={3} />
             </div>
             <div className="modal-actions">
-              {editing && (
+              {editing && canDo('clients', 'delete') && (
                 <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={saving}>
                   <Trash2 size={16} /> Delete
                 </button>
               )}
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                 <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
+                <button type="submit" className="btn btn-primary" disabled={saving || (editing && !canDo('clients', 'edit'))}>
                   {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
                 </button>
               </div>

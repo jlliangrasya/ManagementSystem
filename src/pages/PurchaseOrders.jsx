@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import StatCard from '../components/StatCard'
@@ -9,6 +10,7 @@ const statusColors = { draft: 'gray', ordered: 'blue', shipped: 'yellow', receiv
 const emptyItem = { product_id: '', quantity: 1, unit_cost: 0 }
 
 export default function PurchaseOrders() {
+  const { canDo } = useAuth()
   const [pos, setPOs] = useState([])
   const [distributors, setDistributors] = useState([])
   const [products, setProducts] = useState([])
@@ -154,7 +156,7 @@ export default function PurchaseOrders() {
           <h1>Purchase Orders</h1>
           <p className="page-subtitle">{pos.length} total orders</p>
         </div>
-        <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New PO</button>
+        {canDo('purchase-orders', 'add') && <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New PO</button>}
       </div>
 
       <div className="stats-grid">
@@ -164,7 +166,7 @@ export default function PurchaseOrders() {
         <StatCard title="Received This Month" value={thisMonth} icon={CheckCircle} color="#10b981" />
       </div>
 
-      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={pos} onRowClick={openEdit} />}
+      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={pos} onRowClick={(canDo('purchase-orders', 'edit') || canDo('purchase-orders', 'delete')) ? openEdit : undefined} />}
 
       {modalOpen && (
         <Modal title={editing ? `Edit ${editing.po_number}` : 'New Purchase Order'} onClose={closeModal} wide>
@@ -233,10 +235,10 @@ export default function PurchaseOrders() {
           </div>
 
           <div className="modal-actions">
-            {editing && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
+            {editing && canDo('purchase-orders', 'delete') && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
               <button className="btn btn-secondary" onClick={closeModal} type="button">Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update' : 'Create PO'}</button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving || (editing && !canDo('purchase-orders', 'edit'))}>{saving ? 'Saving...' : editing ? 'Update' : 'Create PO'}</button>
             </div>
           </div>
         </Modal>

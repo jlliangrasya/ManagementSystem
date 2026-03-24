@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import { Plus, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
@@ -25,6 +26,7 @@ function formatCurrency(value) {
 }
 
 export default function CashFlow() {
+  const { canDo } = useAuth()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -212,10 +214,12 @@ export default function CashFlow() {
     <div className="page">
       <div className="page-header">
         <h1>Cash Flow</h1>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Plus size={18} />
-          Add Transaction
-        </button>
+        {canDo('cash-flow', 'add') && (
+          <button className="btn btn-primary" onClick={openAdd}>
+            <Plus size={18} />
+            Add Transaction
+          </button>
+        )}
       </div>
 
       <div className="stats-grid">

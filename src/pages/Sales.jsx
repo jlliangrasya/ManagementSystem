@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import { Plus, Trash2, X } from 'lucide-react'
@@ -14,6 +15,7 @@ const statusColors = {
 }
 
 export default function Sales() {
+  const { canDo } = useAuth()
   const [sales, setSales] = useState([])
   const [clients, setClients] = useState([])
   const [products, setProducts] = useState([])
@@ -308,16 +310,18 @@ export default function Sales() {
     <div className="page">
       <div className="page-header">
         <h2>Sales</h2>
-        <button className="btn btn-primary" onClick={openNew}>
-          <Plus size={18} />
-          New Sale
-        </button>
+        {canDo('sales', 'add') && (
+          <button className="btn btn-primary" onClick={openNew}>
+            <Plus size={18} />
+            New Sale
+          </button>
+        )}
       </div>
 
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <DataTable columns={columns} data={sales} onRowClick={openEdit} />
+        <DataTable columns={columns} data={sales} onRowClick={(canDo('sales', 'edit') || canDo('sales', 'delete')) ? openEdit : undefined} />
       )}
 
       {modalOpen && (
@@ -472,7 +476,7 @@ export default function Sales() {
           </div>
 
           <div className="modal-actions">
-            {editing && (
+            {editing && canDo('sales', 'delete') && (
               <button className="btn btn-danger" onClick={handleDelete} type="button">
                 <Trash2 size={16} />
                 Delete
@@ -482,7 +486,7 @@ export default function Sales() {
               <button className="btn" onClick={closeModal} type="button">
                 Cancel
               </button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving || (editing && !canDo('sales', 'edit'))}>
                 {saving ? 'Saving...' : editing ? 'Update Sale' : 'Create Sale'}
               </button>
             </div>

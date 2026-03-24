@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import StatCard from '../components/StatCard'
@@ -10,6 +11,7 @@ const REASONS = ['Damaged', 'Expired', 'Wrong Product', 'Customer Changed Mind',
 const FILTERS = ['All', 'Pending', 'Approved', 'Completed', 'Rejected']
 
 export default function Returns() {
+  const { canDo } = useAuth()
   const [returns, setReturns] = useState([])
   const [sales, setSales] = useState([])
   const [products, setProducts] = useState([])
@@ -173,7 +175,7 @@ export default function Returns() {
           <h1>Returns</h1>
           <p className="page-subtitle">{returns.length} total returns</p>
         </div>
-        <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New Return</button>
+        {canDo('returns', 'add') && <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New Return</button>}
       </div>
 
       <div className="stats-grid">
@@ -187,7 +189,7 @@ export default function Returns() {
         {FILTERS.map(f => <button key={f} className={`btn ${filter === f ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFilter(f)}>{f}</button>)}
       </div>
 
-      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={filtered} onRowClick={openEdit} />}
+      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={filtered} onRowClick={(canDo('returns', 'edit') || canDo('returns', 'delete')) ? openEdit : undefined} />}
 
       {modalOpen && (
         <Modal title={editing ? `Edit ${editing.return_number}` : 'New Return'} onClose={closeModal} wide>
@@ -253,10 +255,10 @@ export default function Returns() {
           </div>
 
           <div className="modal-actions">
-            {editing && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
+            {editing && canDo('returns', 'delete') && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
               <button className="btn btn-secondary" onClick={closeModal} type="button">Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update' : 'Create Return'}</button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving || (editing && !canDo('returns', 'edit'))}>{saving ? 'Saving...' : editing ? 'Update' : 'Create Return'}</button>
             </div>
           </div>
         </Modal>

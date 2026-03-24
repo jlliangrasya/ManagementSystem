@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import { Plus, Trash2 } from 'lucide-react'
@@ -32,6 +33,7 @@ function formatCurrency(value) {
 }
 
 export default function Inventory() {
+  const { canDo } = useAuth()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -190,10 +192,12 @@ export default function Inventory() {
     <div className="page">
       <div className="page-header">
         <h2>Inventory</h2>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Plus size={18} />
-          Add Product
-        </button>
+        {canDo('inventory', 'add') && (
+          <button className="btn btn-primary" onClick={openAdd}>
+            <Plus size={18} />
+            Add Product
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -202,7 +206,7 @@ export default function Inventory() {
         <DataTable
           columns={columns}
           data={products}
-          onRowClick={openEdit}
+          onRowClick={(canDo('inventory', 'edit') || canDo('inventory', 'delete')) ? openEdit : undefined}
         />
       )}
 
@@ -324,7 +328,7 @@ export default function Inventory() {
             </div>
 
             <div className="form-actions">
-              {editing && (
+              {editing && canDo('inventory', 'delete') && (
                 <button
                   type="button"
                   className="btn btn-danger"
@@ -347,7 +351,7 @@ export default function Inventory() {
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={saving}
+                  disabled={saving || (editing && !canDo('inventory', 'edit'))}
                 >
                   {saving ? 'Saving...' : editing ? 'Update Product' : 'Create Product'}
                 </button>

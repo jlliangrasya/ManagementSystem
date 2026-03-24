@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
 import StatCard from '../components/StatCard'
@@ -24,6 +25,7 @@ function getDaysUntilExpiry(expiryDate) {
 }
 
 export default function BatchTracking() {
+  const { canDo } = useAuth()
   const [batches, setBatches] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -140,7 +142,7 @@ export default function BatchTracking() {
           <h1>Batch Tracking</h1>
           <p className="page-subtitle">Food safety and production tracking</p>
         </div>
-        <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New Batch</button>
+        {canDo('batch-tracking', 'add') && <button className="btn btn-primary" onClick={openNew}><Plus size={18} /> New Batch</button>}
       </div>
 
       <div className="stats-grid">
@@ -156,7 +158,7 @@ export default function BatchTracking() {
         ))}
       </div>
 
-      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={filtered} onRowClick={openEdit} />}
+      {loading ? <p className="loading">Loading...</p> : <DataTable columns={columns} data={filtered} onRowClick={(canDo('batch-tracking', 'edit') || canDo('batch-tracking', 'delete')) ? openEdit : undefined} />}
 
       {modalOpen && (
         <Modal title={editing ? `Edit ${editing.batch_number}` : 'New Batch'} onClose={closeModal}>
@@ -206,10 +208,10 @@ export default function BatchTracking() {
             <textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Optional notes..." />
           </div>
           <div className="modal-actions">
-            {editing && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
+            {editing && canDo('batch-tracking', 'delete') && <button className="btn btn-danger" onClick={handleDelete} type="button"><Trash2 size={16} /> Delete</button>}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
               <button className="btn btn-secondary" onClick={closeModal} type="button">Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update' : 'Create Batch'}</button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving || (editing && !canDo('batch-tracking', 'edit'))}>{saving ? 'Saving...' : editing ? 'Update' : 'Create Batch'}</button>
             </div>
           </div>
         </Modal>
