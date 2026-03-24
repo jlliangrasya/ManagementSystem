@@ -204,7 +204,7 @@ export default function Dashboard() {
     <div className="dashboard">
       <div className="page-header">
         <div>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, margin: 0 }}>Dashboard</h1>
+          <h1>Dashboard</h1>
           <p className="page-subtitle">Welcome back to Cavella</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
