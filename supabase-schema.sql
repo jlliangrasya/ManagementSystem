@@ -321,6 +321,23 @@ ALTER TABLE batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
+-- === Helper functions (SECURITY DEFINER bypasses RLS to avoid recursion) ===
+
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+CREATE OR REPLACE FUNCTION has_user_management()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 -- === Profiles policies ===
 
 -- Everyone can read their own profile
@@ -331,47 +348,24 @@ CREATE POLICY "Users can read own profile"
 -- Admins can read all profiles (for user management page)
 CREATE POLICY "Admins can read all profiles"
   ON profiles FOR SELECT TO authenticated
-  USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-  );
+  USING (is_admin());
 
 -- Users with user_management permission can also read all profiles
 CREATE POLICY "User managers can read all profiles"
   ON profiles FOR SELECT TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
-    )
-  );
+  USING (has_user_management());
 
 -- Only admins can update profiles (assign permissions)
 CREATE POLICY "Admins can update profiles"
   ON profiles FOR UPDATE TO authenticated
-  USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-  )
-  WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-  );
+  USING (is_admin())
+  WITH CHECK (is_admin());
 
 -- Users with user_management permission can update non-admin profiles
 CREATE POLICY "User managers can update non-admin profiles"
   ON profiles FOR UPDATE TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
-    )
-    AND is_admin = false
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND permissions @> '{"user-management": ["view"]}'::jsonb
-    )
-    AND is_admin = false
-  );
+  USING (has_user_management() AND is_admin = false)
+  WITH CHECK (has_user_management() AND is_admin = false);
 
 -- Users can update their own name/email (but not permissions or is_admin)
 CREATE POLICY "Users can update own basic info"

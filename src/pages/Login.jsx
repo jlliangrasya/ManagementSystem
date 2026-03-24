@@ -5,6 +5,7 @@ import { LogIn, UserPlus } from 'lucide-react'
 export default function Login() {
   const { signIn, signUp } = useAuth()
   const [isRegister, setIsRegister] = useState(false)
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -19,7 +20,7 @@ export default function Login() {
 
     try {
       if (isRegister) {
-        await signUp(email, password)
+        await signUp(email, password, fullName)
         setMessage('Check your email for a confirmation link!')
       } else {
         await signIn(email, password)
@@ -40,6 +41,19 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           {error && <div className="alert alert-error">{error}</div>}
           {message && <div className="alert alert-success">{message}</div>}
+
+          {isRegister && (
+            <div className="form-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                placeholder="Your full name"
+                required
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Email</label>
