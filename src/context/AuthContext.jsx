@@ -36,7 +36,10 @@ export function AuthProvider({ children }) {
       .eq('id', userId)
       .single()
 
-    if (!error && data) {
+    if (error) {
+      console.error('Failed to fetch profile:', error)
+    }
+    if (data) {
       setProfile(data)
     }
   }

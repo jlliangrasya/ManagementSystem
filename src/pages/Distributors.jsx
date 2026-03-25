@@ -277,8 +277,8 @@ export default function Distributors() {
               </div>
             </div>
             <div className="form-group">
-              <label>Location (click map to place pin)</label>
-              <div style={{ height: 300, marginTop: 8 }}>
+              <label>Location</label>
+              <div style={{ height: 350, marginTop: 8, borderRadius: 10, overflow: 'hidden' }}>
                 <DistributorMap distributors={editing ? [editing] : []} onMapClick={handleMapClick} clickPosition={clickPosition} interactive />
               </div>
             </div>
